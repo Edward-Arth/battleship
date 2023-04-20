@@ -6,6 +6,7 @@ class Ship {
 
     this.hit = function hit() {
       this.hits += 1;
+      return this.isSunk();
     };
 
     this.isSunk = function isSunk() {

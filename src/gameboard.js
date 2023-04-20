@@ -17,50 +17,87 @@ class Gameboard {
       [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     ];
     this.missedHits = [];
+    this.missedAttacks = [];
+    this.successfulAttacks = [];
+    this.armada = [];
+    this.armadaSpaces = [];
+    const passableArmadaSpaces = this.armadaSpaces;
+    const passableArmada = this.armada;
     const passableHits = this.missedHits;
     const passableSquares = this.squares;
     this.placeShip = function placeShip(length, [startRow, startColumn], orientation) {
-      const newShip = new Ship(length);
-      function shipSplice(start) {
-        if (orientation === 'horizontal') {
-          if (start === startColumn + length) {
-            const staticRow = passableSquares[startRow];
-            staticRow.splice(start, 1, 'newShip');
-            return;
+      if (orientation === 'horizontal') {
+        if (startColumn + length > 10) {
+          return;
+        }
+        const shipSpaces = [];
+        let variableSpace = startColumn;
+        for (let i = 0; i < length; i += 1) {
+          shipSpaces.push([startRow, variableSpace]);
+          variableSpace += 1;
+        }
+        if (passableArmadaSpaces.length !== 0) {
+          for (let i = 0; i < shipSpaces.length; i += 1) {
+            // eslint-disable-next-line max-len
+            if (passableArmadaSpaces.some((arr) => arr.every((val, index) => val === shipSpaces[i][index]))) {
+              return;
+            }
           }
-          const staticRow = passableSquares[startRow];
-          staticRow.splice(start, 1, 'newShip');
-          shipSplice(start + 1);
-        } else {
-          if (start === startRow + length) {
-            const nonStaticRow = passableSquares[start];
-            nonStaticRow.splice(startColumn, 1, newShip);
-            return;
+        }
+        const newShip = new Ship(length);
+        passableArmada.push(newShip);
+        for (let i = 0; i < shipSpaces.length; i += 1) {
+          passableSquares[startRow].splice(startColumn + i, 1, newShip);
+          passableArmadaSpaces.push([startRow, startColumn + i]);
+        }
+      } else {
+        if (startRow + length > 10) {
+          return;
+        }
+        const shipSpaces = [];
+        let variableSpace = startRow;
+        for (let i = 0; i < length; i += 1) {
+          shipSpaces.push([variableSpace, startColumn]);
+          variableSpace += 1;
+        }
+        if (passableArmadaSpaces.length !== 0) {
+          for (let i = 0; i < shipSpaces.length; i += 1) {
+            // eslint-disable-next-line max-len
+            if (passableArmadaSpaces.some((arr) => arr.every((val, index) => val === shipSpaces[i][index]))) {
+              return;
+            }
           }
-          const nonStaticRow = passableSquares[start];
-          nonStaticRow.splice(startColumn, 1, newShip);
-          shipSplice(start + 1);
+        }
+        const newShip = new Ship(length);
+        passableArmada.push(newShip);
+        let variableRow = startRow;
+        for (let i = 0; i < shipSpaces.length; i += 1) {
+          passableSquares[variableRow].splice(startColumn, 1, newShip);
+          passableArmadaSpaces.push([variableRow, startColumn]);
+          variableRow += 1;
         }
       }
-      if (orientation === 'horizontal' && startColumn + length < 10) {
-        shipSplice(startColumn);
-      } else if (orientation === 'horizontal' && startColumn + length > 10) {
-        return 'Ship is too long for this space!';
-      } else if (orientation === 'vertical' && startRow + length < 10) {
-        shipSplice(startRow);
-      } else if (orientation === 'vertical' && startRow + length > 10) {
-        return 'Ship is too long for this space!';
-      }
-      return this.squares;
     };
     this.receiveAttack = function receiveAttack([row, column]) {
       const attackedSquare = passableSquares[row][column];
       if (attackedSquare === column + 1) {
         passableHits.push([row, column]);
-      } else {
-        attackedSquare.hit();
+        return 'Miss!';
       }
-      return passableHits && passableSquares;
+      const hitReturn = attackedSquare.hit();
+      if (hitReturn === true) {
+        return 'Hit & ship sunk!';
+      }
+      return 'Hit & ship still afloat!';
+    };
+    this.checkFleet = function checkFleet() {
+      for (let i = 0; i < passableArmada.length; i += 1) {
+        const isSunk = passableArmada[i].isSunk();
+        if (isSunk === false) {
+          return false;
+        }
+      }
+      return true;
     };
   }
 }
@@ -70,10 +107,15 @@ const mockBoard = new Gameboard();
 mockBoard.placeShip(5, [2, 3], 'vertical');
 
 mockBoard.receiveAttack([3, 3]);
+mockBoard.receiveAttack([2, 3]);
+mockBoard.receiveAttack([4, 3]);
+mockBoard.receiveAttack([5, 3]);
+mockBoard.receiveAttack([6, 3]);
+
 mockBoard.receiveAttack([9, 9]);
+
+mockBoard.placeShip(2, [8, 8], 'horizontal');
+mockBoard.placeShip(2, [7, 8], 'vertical');
 
 exports.class = Gameboard;
 exports.mockObject = mockBoard;
-
-// write in different ship types, and gameboard "armada" that keeps track of ships
-// and function to loop through armada checking for sunk ships
