@@ -1,9 +1,10 @@
+/* eslint-disable max-len */
 const gameBoardModule = require('./gameboard');
 
 const Gameboard = gameBoardModule.class;
 
 class Player {
-  constructor() {
+  constructor(enemyPlayer) {
     this.newGrid = function newGrid() {
       const newBoard = new Gameboard();
       return newBoard;
@@ -32,21 +33,20 @@ class Player {
     this.computerOriginalHit = [];
     const { computerOriginalHit } = this;
     this.computerAttack = function computerAttack(humanPlayer) {
+      let returnArr;
       function randomSelect() {
         return Math.floor(Math.random() * 10);
       }
       function attackRepeat() {
         const randomSpace = [randomSelect(), randomSelect()];
-        // eslint-disable-next-line max-len
+        let randomAttack;
         if (playerGrid.missedAttacks.some((arr) => arr.every((val, index) => val === randomSpace[index]))) {
           attackRepeat();
-        // eslint-disable-next-line max-len
         } else if (playerGrid.successfulAttacks.some((arr) => arr.every((val, index) => val === randomSpace[index]))) {
           attackRepeat();
         } else {
-          const randomAttack = passableAttack(humanPlayer, randomSpace);
+          randomAttack = passableAttack(humanPlayer, randomSpace);
           if (randomAttack === 'Hit & ship still afloat!') {
-            playerGrid.successfulAttacks.push(randomSpace);
             computerOriginalHit.push(randomSpace);
             computerShipDamage.push(
               [randomSpace[0] + 1, randomSpace[1]],
@@ -62,6 +62,7 @@ class Player {
               }
             }
           }
+          returnArr = [randomSpace, randomAttack];
         }
       }
       function attackDamagedShip() {
@@ -69,41 +70,51 @@ class Player {
         computerShipDamage.splice(-1, 1);
         const attemptAttack = passableAttack(humanPlayer, newTarget);
         if (attemptAttack === 'Hit & ship still afloat!') {
-          playerGrid.successfulAttacks.push(newTarget);
           const rowDiff = newTarget[0] - computerOriginalHit[0][0];
           const colDiff = newTarget[1] - computerOriginalHit[0][1];
-          if (rowDiff === 1) {
+          if (rowDiff >= 1) {
             computerShipDamage.push([newTarget[0] + 1, newTarget[1]]);
-          } else if (rowDiff === -1) {
+          } else if (rowDiff <= -1) {
             computerShipDamage.push([newTarget[0] - 1, newTarget[1]]);
-          } else if (colDiff === 1) {
+          } else if (colDiff >= 1) {
             computerShipDamage.push([newTarget[0], newTarget[1] + 1]);
-          } else if (colDiff === -1) {
+          } else if (colDiff <= -1) {
             computerShipDamage.push([newTarget[0], newTarget[1] - 1]);
           }
           const checkIfPriorMiss = computerShipDamage.slice(-1);
-          // eslint-disable-next-line max-len
-          if (playerGrid.missedAttacks.some((arr) => arr.every((val, index) => val === checkIfPriorMiss[index]))) {
+          if (playerGrid.missedAttacks.some((arr) => arr.every((val, index) => val === checkIfPriorMiss[0][index]))) {
             computerShipDamage.splice(-1, 1);
-          // eslint-disable-next-line max-len
-          } else if (playerGrid.successfulAttacks.some((arr) => arr.every((val, index) => val === checkIfPriorMiss[index]))) {
+          } else if (playerGrid.successfulAttacks.some((arr) => arr.every((val, index) => val === checkIfPriorMiss[0][index]))) {
+            computerShipDamage.splice(-1, 1);
+          } else if (checkIfPriorMiss[0][0] > 9 || checkIfPriorMiss[0][0] < 0 || checkIfPriorMiss[0][1] > 9 || checkIfPriorMiss[0][1] < 0) {
             computerShipDamage.splice(-1, 1);
           }
         } else if (attemptAttack === 'Hit & ship sunk!') {
-          playerGrid.successfulAttacks.push(newTarget);
           computerShipDamage.length = 0;
           computerOriginalHit.length = 0;
         }
+        returnArr = [newTarget, attemptAttack];
       }
       if (computerShipDamage.length === 0) {
         attackRepeat();
       } else {
         attackDamagedShip();
       }
+      console.log(playerGrid.missedAttacks, playerGrid.successfulAttacks);
+      return returnArr;
+    };
+    const passableCPUAttack = this.computerAttack;
+    this.cpuResponse = function cpuResponse() {
+      const attackDetails = passableCPUAttack(enemyPlayer);
+      const checkWin = enemyPlayer.grid.checkFleet();
+      if (checkWin === true) {
+        return checkWin;
+      }
+      return attackDetails;
     };
   }
 }
-
+/*
 const player1 = new Player();
 const player2 = new Player();
 player1.newGrid();
@@ -119,7 +130,9 @@ player2.computerOriginalHit.push([0, 0]);
 player2.computerAttack(player1);
 player2.computerAttack(player1);
 player2.computerAttack(player1);
-
+*/
 exports.class = Player;
+/*
 exports.mockObject = player1;
 exports.mockComputer = player2;
+*/

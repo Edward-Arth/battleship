@@ -1,0 +1,38 @@
+body {
+    margin: 0;
+    padding: 0;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#titleCard {
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    margin-bottom: 5vh;
+    margin-top: 5vh;
+    font-size: 200%;
+}
+
+#yourBoard {
+    width: 500px;
+    height: 500px;
+    border-color: black;
+    border-style: solid;
+    margin-right: 10px;
+    display:flex;
+    flex-wrap: wrap;
+}
+
+#enemyBoard {
+    margin-left: 10px;
+    width: 500px;
+    height: 500px;
+    border-color: black;
+    border-style: solid;
+    display:flex;
+    flex-wrap: wrap;
+}
