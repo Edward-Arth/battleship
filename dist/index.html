@@ -10,8 +10,27 @@
 </head>
 <body>
     <div id="titleCard">BATTLESHIP!</div>
-    <div id="yourBoard"></div>
-    <div id="enemyBoard"></div>
+    <div id="placeShipGrid">
+        <div id="placementBoard"></div>
+        <button id="startGame">Start</button>
+        <div id="instructions">Click to place a ship, right click to change orientation!</div>
+    </div>
+    <div id="yourBoard">
+        <div id="sunkNotif2">SHIP SUNK!!</div>
+
+    </div>
+    <div id="enemyBoard">
+        <div id="sunkNotif">SHIP SUNK!!</div>
+    </div>
+    <div id="instructions2">Click right grid to attack enemy computer...Sink their ships before they sink yours!</div>
+    <div id="winDeclaration" class="declarations">
+        <div class="textDec">YOU WIN!!</div>
+        <button class="restart">Play again?</div>
+    </div>
+    <div id="loseDeclaration" class="declarations">
+        <div class="textDec">You lose...</div>
+        <button class="restart">Play again?</div>
+    </div>
     <script src="main.js"></script>
 </body>
 </html>

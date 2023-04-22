@@ -17,8 +17,4 @@ class Ship {
     };
   }
 }
-
-const mockShip = new Ship(5);
-
 exports.class = Ship;
-exports.mockObject = mockShip;

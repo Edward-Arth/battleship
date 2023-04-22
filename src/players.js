@@ -12,8 +12,10 @@ class Player {
     this.grid = this.newGrid();
     const playerGrid = this.grid;
     this.placeShip = function placeShip(length, [startRow, startColumn], orientation) {
-      playerGrid.placeShip(length, [startRow, startColumn], orientation);
+      const placeShipAttempt = playerGrid.placeShip(length, [startRow, startColumn], orientation);
+      return placeShipAttempt;
     };
+    const passableBuild = this.placeShip;
     this.receiveAttack = function receiveAttack([row, column]) {
       const gotHit = playerGrid.receiveAttack([row, column]);
       return gotHit;
@@ -27,6 +29,9 @@ class Player {
       }
       return hitOrMiss;
     };
+    function randomSelect() {
+      return Math.floor(Math.random() * 10);
+    }
     const passableAttack = this.attack;
     this.computerShipDamage = [];
     const { computerShipDamage } = this;
@@ -34,9 +39,6 @@ class Player {
     const { computerOriginalHit } = this;
     this.computerAttack = function computerAttack(humanPlayer) {
       let returnArr;
-      function randomSelect() {
-        return Math.floor(Math.random() * 10);
-      }
       function attackRepeat() {
         const randomSpace = [randomSelect(), randomSelect()];
         let randomAttack;
@@ -100,7 +102,6 @@ class Player {
       } else {
         attackDamagedShip();
       }
-      console.log(playerGrid.missedAttacks, playerGrid.successfulAttacks);
       return returnArr;
     };
     const passableCPUAttack = this.computerAttack;
@@ -112,27 +113,30 @@ class Player {
       }
       return attackDetails;
     };
+
+    this.cpuBuildShips = function cpuBuildShips() {
+      let cpuShipLength = 5;
+      let cpuOri = 'horizontal';
+      for (let i = 0; i < 4;) {
+        const buildAttempt = passableBuild(cpuShipLength, [randomSelect(), randomSelect()], cpuOri);
+        if (buildAttempt === false) {
+          i += 0;
+          if (cpuOri === 'horizontal') {
+            cpuOri = 'vertical';
+          } else {
+            cpuOri = 'horizontal';
+          }
+        } else {
+          cpuShipLength -= 1;
+          i += 1;
+          if (cpuOri === 'horizontal') {
+            cpuOri = 'vertical';
+          } else {
+            cpuOri = 'horizontal';
+          }
+        }
+      }
+    };
   }
 }
-/*
-const player1 = new Player();
-const player2 = new Player();
-player1.newGrid();
-player2.newGrid();
-
-player1.placeShip(3, [0, 0], 'horizontal');
-
-player1.receiveAttack([0, 0]);
-
-player2.computerShipDamage.push([1, 0], [0, 1]);
-player2.computerOriginalHit.push([0, 0]);
-
-player2.computerAttack(player1);
-player2.computerAttack(player1);
-player2.computerAttack(player1);
-*/
 exports.class = Player;
-/*
-exports.mockObject = player1;
-exports.mockComputer = player2;
-*/

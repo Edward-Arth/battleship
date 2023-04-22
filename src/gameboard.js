@@ -28,7 +28,7 @@ class Gameboard {
     this.placeShip = function placeShip(length, [startRow, startColumn], orientation) {
       if (orientation === 'horizontal') {
         if (startColumn + length > 10) {
-          return;
+          return false;
         }
         const shipSpaces = [];
         let variableSpace = startColumn;
@@ -40,7 +40,7 @@ class Gameboard {
           for (let i = 0; i < shipSpaces.length; i += 1) {
             // eslint-disable-next-line max-len
             if (passableArmadaSpaces.some((arr) => arr.every((val, index) => val === shipSpaces[i][index]))) {
-              return;
+              return false;
             }
           }
         }
@@ -52,7 +52,7 @@ class Gameboard {
         }
       } else {
         if (startRow + length > 10) {
-          return;
+          return false;
         }
         const shipSpaces = [];
         let variableSpace = startRow;
@@ -64,7 +64,7 @@ class Gameboard {
           for (let i = 0; i < shipSpaces.length; i += 1) {
             // eslint-disable-next-line max-len
             if (passableArmadaSpaces.some((arr) => arr.every((val, index) => val === shipSpaces[i][index]))) {
-              return;
+              return false;
             }
           }
         }
@@ -77,6 +77,7 @@ class Gameboard {
           variableRow += 1;
         }
       }
+      return true;
     };
     this.receiveAttack = function receiveAttack([row, column]) {
       const attackedSquare = passableSquares[row][column];
@@ -102,20 +103,4 @@ class Gameboard {
   }
 }
 
-const mockBoard = new Gameboard();
-
-mockBoard.placeShip(5, [2, 3], 'vertical');
-
-mockBoard.receiveAttack([3, 3]);
-mockBoard.receiveAttack([2, 3]);
-mockBoard.receiveAttack([4, 3]);
-mockBoard.receiveAttack([5, 3]);
-mockBoard.receiveAttack([6, 3]);
-
-mockBoard.receiveAttack([9, 9]);
-
-mockBoard.placeShip(2, [8, 8], 'horizontal');
-mockBoard.placeShip(2, [7, 8], 'vertical');
-
 exports.class = Gameboard;
-exports.mockObject = mockBoard;
